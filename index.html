@@ -88,7 +88,7 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
             border: 2px solid transparent;
         }
         .course-card:active { transform: scale(0.97); }
@@ -101,6 +101,7 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 0.8rem;
+            transition: background 0.3s ease;
         }
         .circle-inner {
             width: 70px;
@@ -324,6 +325,14 @@
                 const card = document.createElement('div');
                 card.className = 'course-card';
                 card.style.borderColor = course.color;
+
+                // %100 Biten Derslerin Karesi Tamamen O Renkle Boyanır
+                if (pct === 100) {
+                    card.style.backgroundColor = course.color;
+                } else {
+                    card.style.backgroundColor = "var(--card-bg)";
+                }
+
                 card.onclick = () => openCourseDetail(course.id);
                 
                 card.innerHTML = `
