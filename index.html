@@ -11,7 +11,7 @@
             --text-main: #2c3e50;
             --shadow: 0 4px 15px rgba(0,0,0,0.05);
             
-            /* 11 Ders İçin Belirgin Pastel Renkler */
+            /* 12 Ders İçin Pastel Renkler */
             --color-1: #FFB3BA; /* Dahiliye - Pastel Pembe */
             --color-2: #FFDFBA; /* Genel Cerrahi - Pastel Turuncu */
             --color-3: #FFFFBA; /* Kadın Doğum - Pastel Sarı */
@@ -23,6 +23,7 @@
             --color-9: #C7CEEA; /* Farmakoloji - Pastel Leylak */
             --color-10: #FFDAC1; /* Mikrobiyoloji - Pastel Şeftali */
             --color-11: #E2F0CB; /* Patoloji - Pastel Fıstık */
+            --color-12: #F6E58D; /* Histoloji - Pastel Sarı */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -119,34 +120,6 @@
         .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
         .back-btn { background: #edf2f7; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        .add-video-form {
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 1.2rem;
-        }
-        .add-video-form input {
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            outline: none;
-            font-size: 0.95rem;
-        }
-        .add-video-form button {
-            background: #48bb78;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
         .video-list { list-style: none; }
         .video-item {
             background: var(--card-bg);
@@ -157,8 +130,30 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            gap: 10px;
         }
-        .video-item.completed { opacity: 0.5; text-decoration: line-through; }
+        .video-item.completed { opacity: 0.6; background: #f0fff4; }
+        .video-item.completed .video-title-text { text-decoration: line-through; }
+
+        .duration-controls { display: flex; align-items: center; gap: 6px; }
+        .duration-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .save-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
 
         .log-table {
             width: 100%;
@@ -223,12 +218,6 @@
                 </div>
             </div>
 
-            <div class="add-video-form">
-                <input type="text" id="video-title-input" placeholder="Video Konusu (Örn: Kalp Yetersizliği)">
-                <input type="number" id="video-duration-input" placeholder="Süre (Dakika Cinsinden)">
-                <button onclick="addVideo()">Video Ekle</button>
-            </div>
-
             <ul class="video-list" id="video-list"></ul>
         </div>
 
@@ -265,33 +254,53 @@
     </div>
 
     <script>
-        let courses = [
-            { id: 1, name: "Dahiliye", color: "var(--color-1)", videos: [] },
-            { id: 2, name: "Genel Cerrahi", color: "var(--color-2)", videos: [] },
-            { id: 3, name: "Kadın Doğum", color: "var(--color-3)", videos: [] },
-            { id: 4, name: "Pediatri", color: "var(--color-4)", videos: [] },
-            { id: 5, name: "Küçük Stajlar", color: "var(--color-5)", videos: [] },
-            { id: 6, name: "Anatomi", color: "var(--color-6)", videos: [] },
-            { id: 7, name: "Fizyoloji", color: "var(--color-7)", videos: [] },
-            { id: 8, name: "Biyokimya", color: "var(--color-8)", videos: [] },
-            { id: 9, name: "Farmakoloji", color: "var(--color-9)", videos: [] },
-            { id: 10, name: "Mikrobiyoloji", color: "var(--color-10)", videos: [] },
-            { id: 11, name: "Patoloji", color: "var(--color-11)", videos: [] }
+        const initialCourseConfigs = [
+            { id: 1, name: "Dahiliye", color: "var(--color-1)", totalCount: 26 },
+            { id: 2, name: "Genel Cerrahi", color: "var(--color-2)", totalCount: 33 },
+            { id: 3, name: "Kadın Doğum", color: "var(--color-3)", totalCount: 47 },
+            { id: 4, name: "Pediatri", color: "var(--color-4)", totalCount: 25 },
+            { id: 5, name: "Küçük Stajlar", color: "var(--color-5)", totalCount: 29 },
+            { id: 6, name: "Anatomi", color: "var(--color-6)", totalCount: 26 },
+            { id: 7, name: "Fizyoloji", color: "var(--color-7)", totalCount: 14 },
+            { id: 8, name: "Biyokimya", color: "var(--color-8)", totalCount: 37 },
+            { id: 9, name: "Farmakoloji", color: "var(--color-9)", totalCount: 21 },
+            { id: 10, name: "Mikrobiyoloji", color: "var(--color-10)", totalCount: 65 },
+            { id: 11, name: "Patoloji", color: "var(--color-11)", totalCount: 26 },
+            { id: 12, name: "Histoloji", color: "var(--color-12)", totalCount: 21 }
         ];
 
+        let courses = [];
         let historyLogs = [];
         let activeCourseId = null;
 
+        function initializeDefaultCourses() {
+            return initialCourseConfigs.map(config => {
+                let videos = [];
+                for (let i = 1; i <= config.totalCount; i++) {
+                    videos.push({
+                        title: `${i}. Ders`,
+                        duration: 0,
+                        done: false
+                    });
+                }
+                return { ...config, videos };
+            });
+        }
+
         function loadData() {
-            const savedCourses = localStorage.getItem('tus_courses_v3');
-            const savedLogs = localStorage.getItem('tus_logs_v3');
-            if (savedCourses) courses = JSON.parse(savedCourses);
+            const savedCourses = localStorage.getItem('tus_courses_v4');
+            const savedLogs = localStorage.getItem('tus_logs_v4');
+            if (savedCourses) {
+                courses = JSON.parse(savedCourses);
+            } else {
+                courses = initializeDefaultCourses();
+            }
             if (savedLogs) historyLogs = JSON.parse(savedLogs);
         }
 
         function saveData() {
-            localStorage.setItem('tus_courses_v3', JSON.stringify(courses));
-            localStorage.setItem('tus_logs_v3', JSON.stringify(historyLogs));
+            localStorage.setItem('tus_courses_v4', JSON.stringify(courses));
+            localStorage.setItem('tus_logs_v4', JSON.stringify(historyLogs));
         }
 
         function renderDashboard() {
@@ -302,9 +311,12 @@
             let completedMin = 0;
 
             courses.forEach(course => {
-                const courseTotal = course.videos.reduce((a, b) => a + b.duration, 0);
-                const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + b.duration, 0);
-                const pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
+                const courseTotal = course.videos.reduce((a, b) => a + (b.duration || 0), 0);
+                const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + (b.duration || 0), 0);
+                
+                const doneCount = course.videos.filter(v => v.done).length;
+                const totalCount = course.videos.length;
+                const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
                 totalMin += courseTotal;
                 completedMin += courseDone;
@@ -314,7 +326,6 @@
                 card.style.borderColor = course.color;
                 card.onclick = () => openCourseDetail(course.id);
                 
-                // %0 iken dahi ders rengi hafif görünecek, ilerledikçe halka dolacak
                 card.innerHTML = `
                     <div class="circle-outer" style="background: conic-gradient(${course.color} ${pct}%, #e2e8f0 0); box-shadow: 0 0 10px ${course.color}">
                         <div class="circle-inner">
@@ -326,7 +337,10 @@
                 grid.appendChild(card);
             });
 
-            const overallPct = totalMin > 0 ? Math.round((completedMin / totalMin) * 100) : 0;
+            const totalDoneVideos = courses.reduce((acc, c) => acc + c.videos.filter(v => v.done).length, 0);
+            const totalAllVideos = courses.reduce((acc, c) => acc + c.videos.length, 0);
+            const overallPct = totalAllVideos > 0 ? Math.round((totalDoneVideos / totalAllVideos) * 100) : 0;
+
             document.getElementById('overall-percentage').innerText = `%${overallPct}`;
             document.getElementById('overall-completed').innerText = `${Math.floor(completedMin/60)}sa ${completedMin%60}dk`;
             document.getElementById('overall-remaining').innerText = `${Math.floor((totalMin - completedMin)/60)}sa ${(totalMin - completedMin)%60}dk`;
@@ -345,9 +359,12 @@
             const videoList = document.getElementById('video-list');
             videoList.innerHTML = '';
 
-            const courseTotal = course.videos.reduce((a, b) => a + b.duration, 0);
-            const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + b.duration, 0);
-            const pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
+            const courseTotal = course.videos.reduce((a, b) => a + (b.duration || 0), 0);
+            const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + (b.duration || 0), 0);
+            
+            const doneCount = course.videos.filter(v => v.done).length;
+            const totalCount = course.videos.length;
+            const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
             document.getElementById('detail-percentage').innerText = `%${pct}`;
             document.getElementById('detail-remaining').innerText = `${Math.floor((courseTotal - courseDone)/60)}sa ${(courseTotal - courseDone)%60}dk`;
@@ -356,32 +373,23 @@
                 const li = document.createElement('li');
                 li.className = `video-item ${video.done ? 'completed' : ''}`;
                 li.innerHTML = `
-                    <div>
+                    <div style="display:flex; align-items:center; gap:8px;">
                         <input type="checkbox" ${video.done ? 'checked' : ''} onchange="toggleVideo(${index})">
-                        <span style="margin-left: 8px;">${video.title}</span>
+                        <span class="video-title-text" style="font-weight:600;">${video.title}</span>
                     </div>
-                    <span>${video.duration} dk</span>
+                    <div class="duration-controls">
+                        <input type="number" class="duration-input" id="input-${index}" value="${video.duration || ''}" placeholder="Dk" min="0">
+                        <button class="save-btn" onclick="updateDuration(${index})">Kaydet</button>
+                    </div>
                 `;
                 videoList.appendChild(li);
             });
         }
 
-        function addVideo() {
-            const titleInput = document.getElementById('video-title-input');
-            const durationInput = document.getElementById('video-duration-input');
-
-            if (!titleInput.value || !durationInput.value) return;
-
+        function updateDuration(index) {
             const course = courses.find(c => c.id === activeCourseId);
-            course.videos.push({
-                title: titleInput.value,
-                duration: parseInt(durationInput.value),
-                done: false
-            });
-
-            titleInput.value = '';
-            durationInput.value = '';
-
+            const inputVal = document.getElementById(`input-${index}`).value;
+            course.videos[index].duration = parseInt(inputVal) || 0;
             saveData();
             renderCourseDetail();
         }
@@ -396,7 +404,7 @@
                     date: new Date().toISOString(),
                     courseName: course.name,
                     videoTitle: video.title,
-                    duration: video.duration
+                    duration: video.duration || 0
                 });
             }
 
