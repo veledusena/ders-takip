@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ders Takip Sistemi</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
+            
+            /* 11 Ders İçin Özel Pastel Renkler */
+            --color-1: #FFB3BA; /* Dahiliye - Pastel Pembe */
+            --color-2: #FFDFBA; /* Genel Cerrahi - Pastel Turuncu */
+            --color-3: #FFFFBA; /* Kadın Doğum - Pastel Sarı */
+            --color-4: #BAFFC9; /* Pediatri - Pastel Yeşili */
+            --color-5: #BAE1FF; /* Küçük Stajlar - Pastel Mavi */
+            --color-6: #E8AEFF; /* Anatomi - Pastel Mor */
+            --color-7: #D5AAFF; /* Fizyoloji - Pastel Eflatun */
+            --color-8: #B5EAD7; /* Biyokimya - Pastel Su Yeşili */
+            --color-9: #C7CEEA; /* Farmakoloji - Pastel Leylak */
+            --color-10: #FFDAC1; /* Mikrobiyoloji - Pastel Şeftali */
+            --color-11: #E2F0CB; /* Patoloji - Pastel Fıstık */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 40px; }
+
+        header {
+            background-color: #fff;
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-tabs { display: flex; gap: 8px; width: 100%; justify-content: center; }
+        .nav-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #edf2f7;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+            max-width: 120px;
+        }
+        .nav-btn.active { background: #4a5568; color: #fff; }
+
+        .container { max-width: 900px; margin: 1.5rem auto; padding: 0 1rem; }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .stat-box h3 { font-size: 1.4rem; color: #4a5568; margin-top: 4px; }
+        .stat-box span { font-size: 0.85rem; color: #718096; }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1rem;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.2rem 0.8rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .course-card:active { transform: scale(0.97); }
+
+        .circle-outer {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.8rem;
+        }
+        .circle-inner {
+            width: 72px;
+            height: 72px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .percentage-text { font-weight: bold; font-size: 1.1rem; }
+        .course-title { font-weight: 600; font-size: 0.95rem; text-align: center; color: #2d3748; }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
+        .back-btn { background: #edf2f7; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .add-video-form {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 1.2rem;
+        }
+        .add-video-form input {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .add-video-form button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .video-list { list-style: none; }
+        .video-item {
+            background: var(--card-bg);
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .video-item.completed { opacity: 0.5; text-decoration: line-through; }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .log-table th, .log-table td { padding: 10px 12px; text-align: left; font-size: 0.9rem; }
+        .log-table th { background: #edf2f7; color: #4a5568; }
+        .log-table tr:nth-child(even) { background: #f7fafc; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>📚 Ders Takip Sistemi</h2>
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('dashboard')">Ana Sayfa</button>
+            <button class="nav-btn" onclick="switchTab('daily')">Günlük</button>
+            <button class="nav-btn" onclick="switchTab('history')">Geçmiş</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ANA SAYFA -->
+        <div id="view-dashboard" class="view active">
+            <div class="summary-card">
+                <div class="stat-box">
+                    <span>Toplam İlerleme</span>
+                    <h3 id="overall-percentage">%0</h3>
+                </div>
+                <div class="stat-box">
+                    <span>Tamamlanan</span>
+                    <h3 id="overall-completed">0sa 0dk</h3>
+                </div>
+                <div class="stat-box">
+                    <span>Kalan Süre</span>
+                    <h3 id="overall-remaining">0sa 0dk</h3>
+                </div>
+            </div>
+
+            <div class="course-grid" id="course-grid"></div>
+        </div>
+
+        <!-- DERS DETAY -->
+        <div id="view-detail" class="view">
+            <div class="detail-header">
+                <button class="back-btn" onclick="switchTab('dashboard')">← Geri</button>
+                <h2 id="detail-title">Ders Adı</h2>
+            </div>
+
+            <div class="summary-card" style="margin-bottom: 1rem;">
+                <div class="stat-box">
+                    <span>Ders Yüzdesi</span>
+                    <h3 id="detail-percentage">%0</h3>
+                </div>
+                <div class="stat-box">
+                    <span>Kalan Süre</span>
+                    <h3 id="detail-remaining">0sa 0dk</h3>
+                </div>
+            </div>
+
+            <div class="add-video-form">
+                <input type="text" id="video-title-input" placeholder="Video Konusu (Örn: Kalp Yetersizliği)">
+                <input type="number" id="video-duration-input" placeholder="Süre (Dakika Cinsinden)">
+                <button onclick="addVideo()">Video Ekle</button>
+            </div>
+
+            <ul class="video-list" id="video-list"></ul>
+        </div>
+
+        <!-- GÜNLÜK TAKİP -->
+        <div id="view-daily" class="view">
+            <h3 style="margin-bottom: 1rem;">Günlük Süre Takibi</h3>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Video Sayısı</th>
+                        <th>Toplam Süre</th>
+                    </tr>
+                </thead>
+                <tbody id="daily-log-body"></tbody>
+            </table>
+        </div>
+
+        <!-- GEÇMİŞ -->
+        <div id="view-history" class="view">
+            <h3 style="margin-bottom: 1rem;">Bitirilen Video Geçmişi</h3>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Tarih / Saat</th>
+                        <th>Ders</th>
+                        <th>Video</th>
+                        <th>Süre</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let courses = [
+            { id: 1, name: "Dahiliye", color: "var(--color-1)", videos: [] },
+            { id: 2, name: "Genel Cerrahi", color: "var(--color-2)", videos: [] },
+            { id: 3, name: "Kadın Doğum", color: "var(--color-3)", videos: [] },
+            { id: 4, name: "Pediatri", color: "var(--color-4)", videos: [] },
+            { id: 5, name: "Küçük Stajlar", color: "var(--color-5)", videos: [] },
+            { id: 6, name: "Anatomi", color: "var(--color-6)", videos: [] },
+            { id: 7, name: "Fizyoloji", color: "var(--color-7)", videos: [] },
+            { id: 8, name: "Biyokimya", color: "var(--color-8)", videos: [] },
+            { id: 9, name: "Farmakoloji", color: "var(--color-9)", videos: [] },
+            { id: 10, name: "Mikrobiyoloji", color: "var(--color-10)", videos: [] },
+            { id: 11, name: "Patoloji", color: "var(--color-11)", videos: [] }
+        ];
+
+        let historyLogs = [];
+        let activeCourseId = null;
+
+        function loadData() {
+            const savedCourses = localStorage.getItem('tus_courses_v2');
+            const savedLogs = localStorage.getItem('tus_logs_v2');
+            if (savedCourses) courses = JSON.parse(savedCourses);
+            if (savedLogs) historyLogs = JSON.parse(savedLogs);
+        }
+
+        function saveData() {
+            localStorage.setItem('tus_courses_v2', JSON.stringify(courses));
+            localStorage.setItem('tus_logs_v2', JSON.stringify(historyLogs));
+        }
+
+        function renderDashboard() {
+            const grid = document.getElementById('course-grid');
+            grid.innerHTML = '';
+
+            let totalMin = 0;
+            let completedMin = 0;
+
+            courses.forEach(course => {
+                const courseTotal = course.videos.reduce((a, b) => a + b.duration, 0);
+                const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + b.duration, 0);
+                const pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
+
+                totalMin += courseTotal;
+                completedMin += courseDone;
+
+                const card = document.createElement('div');
+                card.className = 'course-card';
+                card.onclick = () => openCourseDetail(course.id);
+                card.innerHTML = `
+                    <div class="circle-outer" style="background: conic-gradient(${course.color} ${pct}%, #edf2f7 0)">
+                        <div class="circle-inner">
+                            <span class="percentage-text">%${pct}</span>
+                        </div>
+                    </div>
+                    <div class="course-title">${course.name}</div>
+                `;
+                grid.appendChild(card);
+            });
+
+            const overallPct = totalMin > 0 ? Math.round((completedMin / totalMin) * 100) : 0;
+            document.getElementById('overall-percentage').innerText = `%${overallPct}`;
+            document.getElementById('overall-completed').innerText = `${Math.floor(completedMin/60)}sa ${completedMin%60}dk`;
+            document.getElementById('overall-remaining').innerText = `${Math.floor((totalMin - completedMin)/60)}sa ${(totalMin - completedMin)%60}dk`;
+        }
+
+        function openCourseDetail(id) {
+            activeCourseId = id;
+            const course = courses.find(c => c.id === id);
+            document.getElementById('detail-title').innerText = course.name;
+            switchTab('detail');
+            renderCourseDetail();
+        }
+
+        function renderCourseDetail() {
+            const course = courses.find(c => c.id === activeCourseId);
+            const videoList = document.getElementById('video-list');
+            videoList.innerHTML = '';
+
+            const courseTotal = course.videos.reduce((a, b) => a + b.duration, 0);
+            const courseDone = course.videos.filter(v => v.done).reduce((a, b) => a + b.duration, 0);
+            const pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
+
+            document.getElementById('detail-percentage').innerText = `%${pct}`;
+            document.getElementById('detail-remaining').innerText = `${Math.floor((courseTotal - courseDone)/60)}sa ${(courseTotal - courseDone)%60}dk`;
+
+            course.videos.forEach((video, index) => {
+                const li = document.createElement('li');
+                li.className = `video-item ${video.done ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div>
+                        <input type="checkbox" ${video.done ? 'checked' : ''} onchange="toggleVideo(${index})">
+                        <span style="margin-left: 8px;">${video.title}</span>
+                    </div>
+                    <span>${video.duration} dk</span>
+                `;
+                videoList.appendChild(li);
+            });
+        }
+
+        function addVideo() {
+            const titleInput = document.getElementById('video-title-input');
+            const durationInput = document.getElementById('video-duration-input');
+
+            if (!titleInput.value || !durationInput.value) return;
+
+            const course = courses.find(c => c.id === activeCourseId);
+            course.videos.push({
+                title: titleInput.value,
+                duration: parseInt(durationInput.durationInput || durationInput.value),
+                done: false
+            });
+
+            titleInput.value = '';
+            durationInput.value = '';
+
+            saveData();
+            renderCourseDetail();
+        }
+
+        function toggleVideo(index) {
+            const course = courses.find(c => c.id === activeCourseId);
+            const video = course.videos[index];
+            video.done = !video.done;
+
+            if (video.done) {
+                historyLogs.push({
+                    date: new Date().toISOString(),
+                    courseName: course.name,
+                    videoTitle: video.title,
+                    duration: video.duration
+                });
+            }
+
+            saveData();
+            renderCourseDetail();
+        }
+
+        function renderDailyLog() {
+            const tbody = document.getElementById('daily-log-body');
+            tbody.innerHTML = '';
+            const dailyData = {};
+
+            historyLogs.forEach(log => {
+                const dateStr = new Date(log.date).toLocaleDateString('tr-TR');
+                if (!dailyData[dateStr]) dailyData[dateStr] = { count: 0, duration: 0 };
+                dailyData[dateStr].count += 1;
+                dailyData[dateStr].duration += log.duration;
+            });
+
+            Object.keys(dailyData).reverse().forEach(date => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td>${dailyData[date].count} Video</td>
+                    <td>${Math.floor(dailyData[date].duration/60)}sa ${dailyData[date].duration%60}dk</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+
+            [...historyLogs].reverse().forEach(log => {
+                const dateStr = new Date(log.date).toLocaleString('tr-TR');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>${log.courseName}</td>
+                    <td>${log.videoTitle}</td>
+                    <td>${log.duration} dk</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+            if (tab === 'dashboard') {
+                document.getElementById('view-dashboard').classList.add('active');
+                document.querySelectorAll('.nav-btn')[0].classList.add('active');
+                renderDashboard();
+            } else if (tab === 'daily') {
+                document.getElementById('view-daily').classList.add('active');
+                document.querySelectorAll('.nav-btn')[1].classList.add('active');
+                renderDailyLog();
+            } else if (tab === 'history') {
+                document.getElementById('view-history').classList.add('active');
+                document.querySelectorAll('.nav-btn')[2].classList.add('active');
+                renderHistory();
+            } else if (tab === 'detail') {
+                document.getElementById('view-detail').classList.add('active');
+            }
+        }
+
+        loadData();
+        renderDashboard();
+    </script>
+</body>
+</html>
