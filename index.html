@@ -11,11 +11,11 @@
             --text-main: #2c3e50;
             --shadow: 0 4px 15px rgba(0,0,0,0.05);
             
-            /* 11 Ders İçin Özel Pastel Renkler */
+            /* 11 Ders İçin Belirgin Pastel Renkler */
             --color-1: #FFB3BA; /* Dahiliye - Pastel Pembe */
             --color-2: #FFDFBA; /* Genel Cerrahi - Pastel Turuncu */
             --color-3: #FFFFBA; /* Kadın Doğum - Pastel Sarı */
-            --color-4: #BAFFC9; /* Pediatri - Pastel Yeşili */
+            --color-4: #BAFFC9; /* Pediatri - Pastel Yeşil */
             --color-5: #BAE1FF; /* Küçük Stajlar - Pastel Mavi */
             --color-6: #E8AEFF; /* Anatomi - Pastel Mor */
             --color-7: #D5AAFF; /* Fizyoloji - Pastel Eflatun */
@@ -88,6 +88,7 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.2s;
+            border: 2px solid transparent;
         }
         .course-card:active { transform: scale(0.97); }
 
@@ -101,8 +102,8 @@
             margin-bottom: 0.8rem;
         }
         .circle-inner {
-            width: 72px;
-            height: 72px;
+            width: 70px;
+            height: 70px;
             background: white;
             border-radius: 50%;
             display: flex;
@@ -282,15 +283,15 @@
         let activeCourseId = null;
 
         function loadData() {
-            const savedCourses = localStorage.getItem('tus_courses_v2');
-            const savedLogs = localStorage.getItem('tus_logs_v2');
+            const savedCourses = localStorage.getItem('tus_courses_v3');
+            const savedLogs = localStorage.getItem('tus_logs_v3');
             if (savedCourses) courses = JSON.parse(savedCourses);
             if (savedLogs) historyLogs = JSON.parse(savedLogs);
         }
 
         function saveData() {
-            localStorage.setItem('tus_courses_v2', JSON.stringify(courses));
-            localStorage.setItem('tus_logs_v2', JSON.stringify(historyLogs));
+            localStorage.setItem('tus_courses_v3', JSON.stringify(courses));
+            localStorage.setItem('tus_logs_v3', JSON.stringify(historyLogs));
         }
 
         function renderDashboard() {
@@ -310,11 +311,14 @@
 
                 const card = document.createElement('div');
                 card.className = 'course-card';
+                card.style.borderColor = course.color;
                 card.onclick = () => openCourseDetail(course.id);
+                
+                // %0 iken dahi ders rengi hafif görünecek, ilerledikçe halka dolacak
                 card.innerHTML = `
-                    <div class="circle-outer" style="background: conic-gradient(${course.color} ${pct}%, #edf2f7 0)">
+                    <div class="circle-outer" style="background: conic-gradient(${course.color} ${pct}%, #e2e8f0 0); box-shadow: 0 0 10px ${course.color}">
                         <div class="circle-inner">
-                            <span class="percentage-text">%${pct}</span>
+                            <span class="percentage-text" style="color: #2d3748;">%${pct}</span>
                         </div>
                     </div>
                     <div class="course-title">${course.name}</div>
@@ -371,7 +375,7 @@
             const course = courses.find(c => c.id === activeCourseId);
             course.videos.push({
                 title: titleInput.value,
-                duration: parseInt(durationInput.durationInput || durationInput.value),
+                duration: parseInt(durationInput.value),
                 done: false
             });
 
