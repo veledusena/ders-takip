@@ -6,24 +6,25 @@
     <title>Ders Takip Sistemi</title>
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            --bg-color: #f7fafc;
             --card-bg: #ffffff;
-            --text-main: #2c3e50;
+            --text-main: #2d3748;
             --shadow: 0 4px 15px rgba(0,0,0,0.05);
-            
-            /* 12 Ders İçin Pastel Renkler */
-            --color-1: #FFB3BA; /* Dahiliye - Pastel Pembe */
-            --color-2: #FFDFBA; /* Genel Cerrahi - Pastel Turuncu */
-            --color-3: #FFFFBA; /* Kadın Doğum - Pastel Sarı */
-            --color-4: #BAFFC9; /* Pediatri - Pastel Yeşil */
-            --color-5: #BAE1FF; /* Küçük Stajlar - Pastel Mavi */
-            --color-6: #E8AEFF; /* Anatomi - Pastel Mor */
-            --color-7: #D5AAFF; /* Fizyoloji - Pastel Eflatun */
-            --color-8: #B5EAD7; /* Biyokimya - Pastel Su Yeşili */
-            --color-9: #C7CEEA; /* Farmakoloji - Pastel Leylak */
-            --color-10: #FFDAC1; /* Mikrobiyoloji - Pastel Şeftali */
-            --color-11: #E2F0CB; /* Patoloji - Pastel Fıstık */
-            --color-12: #F6E58D; /* Histoloji - Pastel Sarı */
+
+            /* Pastel Renk Paleti */
+            --c-1: #FFB3BA; /* Dahiliye */
+            --c-2: #FFDFBA; /* Genel Cerrahi */
+            --c-3: #FFFFBA; /* Kadın Doğum */
+            --c-4: #BAFFC9; /* Pediatri */
+            --c-5: #BAE1FF; /* Küçük Stajlar */
+            --c-6: #E8AEFF; /* Anatomi */
+            --c-7: #D5AAFF; /* Fizyoloji */
+            --c-8: #B5EAD7; /* Biyokimya */
+            --c-9: #C7CEEA; /* Farmakoloji */
+            --c-10: #FFDAC1; /* Mikrobiyoloji */
+            --c-11: #E2F0CB; /* Patoloji */
+            --c-12: #F6E58D; /* Histoloji */
+            --c-done: #d4edda; /* Biten Ders için Soluk Yeşil */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -39,40 +40,49 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
         }
 
-        .nav-tabs { display: flex; gap: 8px; width: 100%; justify-content: center; }
-        .nav-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            background: #edf2f7;
-            color: var(--text-main);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* Üst Menü Pastel Butonlar */
+        .main-nav { display: flex; gap: 10px; width: 100%; max-width: 500px; justify-content: center; }
+        .main-nav-btn {
             flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             text-align: center;
-            max-width: 120px;
         }
-        .nav-btn.active { background: #4a5568; color: #fff; }
+        .main-nav-btn:active { transform: scale(0.96); }
+        .btn-video { background-color: #FFE5EC; color: #d63384; }
+        .btn-repeat { background-color: #E2F0CB; color: #2b8a3e; }
+        .btn-timer { background-color: #D0F4DE; color: #099268; }
+        .main-nav-btn.active { outline: 3px solid #495057; }
 
-        .container { max-width: 900px; margin: 1.5rem auto; padding: 0 1rem; }
+        .container { max-width: 900px; margin: 1.2rem auto; padding: 0 1rem; }
 
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Özet Kartı */
         .summary-card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 1.2rem;
+            padding: 1rem;
             box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             display: flex;
             justify-content: space-around;
             text-align: center;
         }
-        .stat-box h3 { font-size: 1.4rem; color: #4a5568; margin-top: 4px; }
-        .stat-box span { font-size: 0.85rem; color: #718096; }
+        .stat-box h3 { font-size: 1.3rem; color: #2d3748; margin-top: 4px; }
+        .stat-box span { font-size: 0.8rem; color: #718096; }
 
+        /* Video Ders Izgarası */
         .course-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -80,7 +90,6 @@
         }
 
         .course-card {
-            background: var(--card-bg);
             border-radius: 18px;
             padding: 1.2rem 0.8rem;
             box-shadow: var(--shadow);
@@ -88,43 +97,54 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            transition: all 0.2s;
         }
-        .course-card:active { transform: scale(0.97); }
+        .course-card:active { transform: scale(0.96); }
 
         .circle-outer {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 0.8rem;
-            transition: background 0.3s ease;
+            background: rgba(255,255,255,0.4);
         }
         .circle-inner {
-            width: 70px;
-            height: 70px;
+            width: 62px;
+            height: 62px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .percentage-text { font-weight: bold; font-size: 1.1rem; }
-        .course-title { font-weight: 600; font-size: 0.95rem; text-align: center; color: #2d3748; }
+        .percentage-text { font-weight: bold; font-size: 1rem; color: #2d3748; }
+        .course-title { font-weight: 700; font-size: 0.9rem; text-align: center; color: #2d3748; }
 
-        .view { display: none; }
-        .view.active { display: block; }
+        /* Geçmiş Butonu & Modalı */
+        .history-btn {
+            background: #EAE4E8;
+            color: #495057;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
 
-        .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
+        /* Detay Sayfası */
+        .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
         .back-btn { background: #edf2f7; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
         .video-list { list-style: none; }
         .video-item {
             background: var(--card-bg);
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-radius: 10px;
             margin-bottom: 8px;
             display: flex;
@@ -143,7 +163,7 @@
             border: 1px solid #cbd5e0;
             border-radius: 6px;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .save-btn {
             background: #4299e1;
@@ -156,6 +176,71 @@
             font-weight: bold;
         }
 
+        /* TEKRAR MENÜSÜ TASARIMI */
+        .repeat-card {
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .repeat-title { font-weight: 700; font-size: 1rem; color: #2d3748; }
+        .repeat-boxes { display: flex; gap: 6px; flex-wrap: wrap; }
+        .repeat-box {
+            width: 32px;
+            height: 32px;
+            background: #ffffff;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .repeat-box.checked {
+            background-color: #48bb78 !important;
+            color: white;
+            border-color: #38a169 !important;
+        }
+
+        /* KRONOMETRE MENÜSÜ */
+        .timer-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #2d3748;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-btn-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 1rem; }
+        .timer-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .btn-start { background: #b5ead7; color: #155724; }
+        .btn-stop { background: #ffb3ba; color: #721c24; }
+        .btn-reset { background: #e2e8f0; color: #4a5568; }
+        .btn-save-log { background: #bae1ff; color: #004085; width: 100%; max-width: 200px; padding: 10px; margin-top: 5px; }
+
+        /* TABLO TASARIMI */
         .log-table {
             width: 100%;
             border-collapse: collapse;
@@ -164,7 +249,7 @@
             overflow: hidden;
             box-shadow: var(--shadow);
         }
-        .log-table th, .log-table td { padding: 10px 12px; text-align: left; font-size: 0.9rem; }
+        .log-table th, .log-table td { padding: 10px 12px; text-align: left; font-size: 0.85rem; }
         .log-table th { background: #edf2f7; color: #4a5568; }
         .log-table tr:nth-child(even) { background: #f7fafc; }
     </style>
@@ -172,17 +257,21 @@
 <body>
 
     <header>
-        <h2>📚 Ders Takip Sistemi</h2>
-        <div class="nav-tabs">
-            <button class="nav-btn active" onclick="switchTab('dashboard')">Ana Sayfa</button>
-            <button class="nav-btn" onclick="switchTab('daily')">Günlük</button>
-            <button class="nav-btn" onclick="switchTab('history')">Geçmiş</button>
+        <div class="main-nav">
+            <button class="main-nav-btn btn-video active" onclick="switchMainTab('video')">📹 Video</button>
+            <button class="main-nav-btn btn-repeat" onclick="switchMainTab('repeat')">🔁 Tekrar</button>
+            <button class="main-nav-btn btn-timer" onclick="switchMainTab('timer')">⏱️ Kronometre</button>
         </div>
     </header>
 
     <div class="container">
-        <!-- ANA SAYFA -->
-        <div id="view-dashboard" class="view active">
+
+        <!-- 1. VİDEO MENÜSÜ -->
+        <div id="view-video" class="view active">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <button class="history-btn" onclick="switchMainTab('history')">📅 Günlük Geçmiş</button>
+            </div>
+
             <div class="summary-card">
                 <div class="stat-box">
                     <span>Toplam İlerleme</span>
@@ -190,21 +279,21 @@
                 </div>
                 <div class="stat-box">
                     <span>Tamamlanan</span>
-                    <h3 id="overall-completed">0sa 0dk</h3>
+                    <h3 id="overall-completed">0 dk</h3>
                 </div>
                 <div class="stat-box">
                     <span>Kalan Süre</span>
-                    <h3 id="overall-remaining">0sa 0dk</h3>
+                    <h3 id="overall-remaining">0 dk</h3>
                 </div>
             </div>
 
             <div class="course-grid" id="course-grid"></div>
         </div>
 
-        <!-- DERS DETAY -->
+        <!-- VİDEO DETAY -->
         <div id="view-detail" class="view">
             <div class="detail-header">
-                <button class="back-btn" onclick="switchTab('dashboard')">← Geri</button>
+                <button class="back-btn" onclick="switchMainTab('video')">← Geri</button>
                 <h2 id="detail-title">Ders Adı</h2>
             </div>
 
@@ -215,16 +304,19 @@
                 </div>
                 <div class="stat-box">
                     <span>Kalan Süre</span>
-                    <h3 id="detail-remaining">0sa 0dk</h3>
+                    <h3 id="detail-remaining">0 dk</h3>
                 </div>
             </div>
 
             <ul class="video-list" id="video-list"></ul>
         </div>
 
-        <!-- GÜNLÜK TAKİP -->
-        <div id="view-daily" class="view">
-            <h3 style="margin-bottom: 1rem;">Günlük Süre Takibi</h3>
+        <!-- VİDEO GEÇMİŞİ MODAL/PENCERE -->
+        <div id="view-history" class="view">
+            <div class="detail-header">
+                <button class="back-btn" onclick="switchMainTab('video')">← Geri</button>
+                <h2>Günlük Biten Video Süreleri</h2>
+            </div>
             <table class="log-table">
                 <thead>
                     <tr>
@@ -237,73 +329,97 @@
             </table>
         </div>
 
-        <!-- GEÇMİŞ -->
-        <div id="view-history" class="view">
-            <h3 style="margin-bottom: 1rem;">Bitirilen Video Geçmişi</h3>
+        <!-- 2. TEKRAR MENÜSÜ -->
+        <div id="view-repeat" class="view">
+            <h3 style="margin-bottom: 1rem; color: #4a5568;">Ders Tekrar Takibi (10 Tekrar)</h3>
+            <div id="repeat-container"></div>
+        </div>
+
+        <!-- 3. KRONOMETRE MENÜSÜ -->
+        <div id="view-timer" class="view">
+            <div class="timer-card">
+                <span style="font-weight:600; color:#718096;">Ders Çalışma Kronometresi</span>
+                <div class="timer-display" id="timer-display">00:00:00</div>
+                <div class="timer-btn-group">
+                    <button class="timer-btn btn-start" onclick="startTimer()">Başlat</button>
+                    <button class="timer-btn btn-stop" onclick="stopTimer()">Durdur</button>
+                    <button class="timer-btn btn-reset" onclick="resetTimer()">Sıfırla</button>
+                </div>
+                <button class="timer-btn btn-save-log" onclick="saveTimerLog()">Günü Kaydet</button>
+            </div>
+
+            <h3 style="margin-bottom: 1rem; color: #4a5568;">Kronometre Günlük Geçmişi</h3>
             <table class="log-table">
                 <thead>
                     <tr>
-                        <th>Tarih / Saat</th>
-                        <th>Ders</th>
-                        <th>Video</th>
-                        <th>Süre</th>
+                        <th>Tarih</th>
+                        <th>Çalışılan Süre</th>
                     </tr>
                 </thead>
-                <tbody id="history-body"></tbody>
+                <tbody id="timer-log-body"></tbody>
             </table>
         </div>
+
     </div>
 
     <script>
         const initialCourseConfigs = [
-            { id: 1, name: "Dahiliye", color: "var(--color-1)", totalCount: 26 },
-            { id: 2, name: "Genel Cerrahi", color: "var(--color-2)", totalCount: 33 },
-            { id: 3, name: "Kadın Doğum", color: "var(--color-3)", totalCount: 47 },
-            { id: 4, name: "Pediatri", color: "var(--color-4)", totalCount: 25 },
-            { id: 5, name: "Küçük Stajlar", color: "var(--color-5)", totalCount: 29 },
-            { id: 6, name: "Anatomi", color: "var(--color-6)", totalCount: 26 },
-            { id: 7, name: "Fizyoloji", color: "var(--color-7)", totalCount: 14 },
-            { id: 8, name: "Biyokimya", color: "var(--color-8)", totalCount: 37 },
-            { id: 9, name: "Farmakoloji", color: "var(--color-9)", totalCount: 21 },
-            { id: 10, name: "Mikrobiyoloji", color: "var(--color-10)", totalCount: 65 },
-            { id: 11, name: "Patoloji", color: "var(--color-11)", totalCount: 26 },
-            { id: 12, name: "Histoloji", color: "var(--color-12)", totalCount: 21 }
+            { id: 1, name: "Dahiliye", color: "var(--c-1)", totalCount: 26 },
+            { id: 2, name: "Genel Cerrahi", color: "var(--c-2)", totalCount: 33 },
+            { id: 3, name: "Kadın Doğum", color: "var(--c-3)", totalCount: 47 },
+            { id: 4, name: "Pediatri", color: "var(--c-4)", totalCount: 25 },
+            { id: 5, name: "Küçük Stajlar", color: "var(--c-5)", totalCount: 29 },
+            { id: 6, name: "Anatomi", color: "var(--c-6)", totalCount: 26 },
+            { id: 7, name: "Fizyoloji", color: "var(--c-7)", totalCount: 14 },
+            { id: 8, name: "Biyokimya", color: "var(--c-8)", totalCount: 37 },
+            { id: 9, name: "Farmakoloji", color: "var(--c-9)", totalCount: 21 },
+            { id: 10, name: "Mikrobiyoloji", color: "var(--c-10)", totalCount: 65 },
+            { id: 11, name: "Patoloji", color: "var(--c-11)", totalCount: 26 },
+            { id: 12, name: "Histoloji", color: "var(--c-12)", totalCount: 21 }
         ];
 
         let courses = [];
         let historyLogs = [];
+        let repeatData = {};
+        let timerLogs = [];
         let activeCourseId = null;
+
+        // Kronometre Değişkenleri
+        let timerInterval = null;
+        let timerSeconds = 0;
 
         function initializeDefaultCourses() {
             return initialCourseConfigs.map(config => {
                 let videos = [];
                 for (let i = 1; i <= config.totalCount; i++) {
-                    videos.push({
-                        title: `${i}. Ders`,
-                        duration: 0,
-                        done: false
-                    });
+                    videos.push({ title: `${i}. Ders`, duration: 0, done: false });
                 }
                 return { ...config, videos };
             });
         }
 
         function loadData() {
-            const savedCourses = localStorage.getItem('tus_courses_v4');
-            const savedLogs = localStorage.getItem('tus_logs_v4');
-            if (savedCourses) {
-                courses = JSON.parse(savedCourses);
-            } else {
-                courses = initializeDefaultCourses();
-            }
+            const savedCourses = localStorage.getItem('tus_courses_v5');
+            const savedLogs = localStorage.getItem('tus_logs_v5');
+            const savedRepeats = localStorage.getItem('tus_repeats_v5');
+            const savedTimerLogs = localStorage.getItem('tus_timer_logs_v5');
+
+            if (savedCourses) courses = JSON.parse(savedCourses);
+            else courses = initializeDefaultCourses();
+
             if (savedLogs) historyLogs = JSON.parse(savedLogs);
+            if (savedRepeats) repeatData = JSON.parse(savedRepeats);
+            if (savedTimerLogs) timerLogs = JSON.parse(savedTimerLogs);
         }
 
         function saveData() {
-            localStorage.setItem('tus_courses_v4', JSON.stringify(courses));
-            localStorage.setItem('tus_logs_v4', JSON.stringify(historyLogs));
+            localStorage.setItem('tus_courses_v5', JSON.stringify(courses));
+            localStorage.setItem('tus_logs_v5', JSON.stringify(historyLogs));
+            localStorage.setItem('tus_repeats_v5', JSON.stringify(repeatData));
+            localStorage.setItem('tus_timer_logs_v5', JSON.stringify(timerLogs));
         }
 
+        /* 1. VİDEO İŞLEMLERİ */
         function renderDashboard() {
             const grid = document.getElementById('course-grid');
             grid.innerHTML = '';
@@ -324,21 +440,20 @@
 
                 const card = document.createElement('div');
                 card.className = 'course-card';
-                card.style.borderColor = course.color;
 
-                // %100 Biten Derslerin Karesi Tamamen O Renkle Boyanır
+                // %100 Biten Ders Soluk Yeşile Dönüşür, Diğerleri Pastel Renk
                 if (pct === 100) {
-                    card.style.backgroundColor = course.color;
+                    card.style.backgroundColor = "var(--c-done)";
                 } else {
-                    card.style.backgroundColor = "var(--card-bg)";
+                    card.style.backgroundColor = course.color;
                 }
 
                 card.onclick = () => openCourseDetail(course.id);
                 
                 card.innerHTML = `
-                    <div class="circle-outer" style="background: conic-gradient(${course.color} ${pct}%, #e2e8f0 0); box-shadow: 0 0 10px ${course.color}">
+                    <div class="circle-outer" style="background: conic-gradient(#4a5568 ${pct}%, rgba(255,255,255,0.4) 0)">
                         <div class="circle-inner">
-                            <span class="percentage-text" style="color: #2d3748;">%${pct}</span>
+                            <span class="percentage-text">%${pct}</span>
                         </div>
                     </div>
                     <div class="course-title">${course.name}</div>
@@ -351,15 +466,15 @@
             const overallPct = totalAllVideos > 0 ? Math.round((totalDoneVideos / totalAllVideos) * 100) : 0;
 
             document.getElementById('overall-percentage').innerText = `%${overallPct}`;
-            document.getElementById('overall-completed').innerText = `${Math.floor(completedMin/60)}sa ${completedMin%60}dk`;
-            document.getElementById('overall-remaining').innerText = `${Math.floor((totalMin - completedMin)/60)}sa ${(totalMin - completedMin)%60}dk`;
+            document.getElementById('overall-completed').innerText = `${completedMin} dk`;
+            document.getElementById('overall-remaining').innerText = `${totalMin - completedMin} dk`;
         }
 
         function openCourseDetail(id) {
             activeCourseId = id;
             const course = courses.find(c => c.id === id);
             document.getElementById('detail-title').innerText = course.name;
-            switchTab('detail');
+            switchMainTab('detail');
             renderCourseDetail();
         }
 
@@ -376,7 +491,7 @@
             const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
             document.getElementById('detail-percentage').innerText = `%${pct}`;
-            document.getElementById('detail-remaining').innerText = `${Math.floor((courseTotal - courseDone)/60)}sa ${(courseTotal - courseDone)%60}dk`;
+            document.getElementById('detail-remaining').innerText = `${courseTotal - courseDone} dk`;
 
             course.videos.forEach((video, index) => {
                 const li = document.createElement('li');
@@ -438,45 +553,127 @@
                 tr.innerHTML = `
                     <td>${date}</td>
                     <td>${dailyData[date].count} Video</td>
-                    <td>${Math.floor(dailyData[date].duration/60)}sa ${dailyData[date].duration%60}dk</td>
+                    <td>${dailyData[date].duration} dk</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderHistory() {
-            const tbody = document.getElementById('history-body');
+        /* 2. TEKRAR İŞLEMLERİ */
+        function renderRepeatView() {
+            const container = document.getElementById('repeat-container');
+            container.innerHTML = '';
+
+            courses.forEach(course => {
+                if (!repeatData[course.id]) {
+                    repeatData[course.id] = Array(10).fill(false);
+                }
+
+                const card = document.createElement('div');
+                card.className = 'repeat-card';
+                card.style.backgroundColor = course.color;
+
+                let boxesHtml = '';
+                for (let i = 0; i < 10; i++) {
+                    const isChecked = repeatData[course.id][i];
+                    boxesHtml += `
+                        <div class="repeat-box ${isChecked ? 'checked' : ''}" onclick="toggleRepeatBox(${course.id}, ${i})">
+                            ${i + 1}
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="repeat-title">${course.name}</div>
+                    <div class="repeat-boxes">${boxesHtml}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleRepeatBox(courseId, index) {
+            repeatData[courseId][index] = !repeatData[courseId][index];
+            saveData();
+            renderRepeatView();
+        }
+
+        /* 3. KRONOMETRE İŞLEMLERİ */
+        function updateTimerDisplay() {
+            const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${hrs}:${mins}:${secs}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function saveTimerLog() {
+            if (timerSeconds === 0) return;
+            
+            const mins = Math.floor(timerSeconds / 60);
+            const dateStr = new Date().toLocaleDateString('tr-TR');
+
+            timerLogs.push({
+                date: dateStr,
+                durationMin: mins
+            });
+
+            saveData();
+            resetTimer();
+            renderTimerLogs();
+        }
+
+        function renderTimerLogs() {
+            const tbody = document.getElementById('timer-log-body');
             tbody.innerHTML = '';
 
-            [...historyLogs].reverse().forEach(log => {
-                const dateStr = new Date(log.date).toLocaleString('tr-TR');
+            [...timerLogs].reverse().forEach(log => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${dateStr}</td>
-                    <td>${log.courseName}</td>
-                    <td>${log.videoTitle}</td>
-                    <td>${log.duration} dk</td>
+                    <td>${log.date}</td>
+                    <td><b>${log.durationMin} dk</b> kronometre tutuldu</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function switchTab(tab) {
+        /* TAB DEĞİŞTİRME */
+        function switchMainTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.main-nav-btn').forEach(b => b.classList.remove('active'));
 
-            if (tab === 'dashboard') {
-                document.getElementById('view-dashboard').classList.add('active');
-                document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if (tab === 'video') {
+                document.getElementById('view-video').classList.add('active');
+                document.querySelector('.btn-video').classList.add('active');
                 renderDashboard();
-            } else if (tab === 'daily') {
-                document.getElementById('view-daily').classList.add('active');
-                document.querySelectorAll('.nav-btn')[1].classList.add('active');
-                renderDailyLog();
+            } else if (tab === 'repeat') {
+                document.getElementById('view-repeat').classList.add('active');
+                document.querySelector('.btn-repeat').classList.add('active');
+                renderRepeatView();
+            } else if (tab === 'timer') {
+                document.getElementById('view-timer').classList.add('active');
+                document.querySelector('.btn-timer').classList.add('active');
+                renderTimerLogs();
             } else if (tab === 'history') {
                 document.getElementById('view-history').classList.add('active');
-                document.querySelectorAll('.nav-btn')[2].classList.add('active');
-                renderHistory();
+                renderDailyLog();
             } else if (tab === 'detail') {
                 document.getElementById('view-detail').classList.add('active');
             }
