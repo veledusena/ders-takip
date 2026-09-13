@@ -25,7 +25,6 @@
             --c-11: #E2F0CB; /* Patoloji */
             --c-12: #F6E58D; /* Histoloji */
             --c-done: #e2e8f0; /* Biten Ders için Gri */
-
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -42,6 +41,38 @@
             position: sticky;
             top: 0;
             z-index: 100;
+        }
+
+        /* Eşitleme Paneli */
+        .sync-bar {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            width: 100%;
+            max-width: 500px;
+            justify-content: space-between;
+        }
+        .sync-input {
+            width: 100px;
+            padding: 4px 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .sync-btn {
+            background: #475569;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
         }
 
         /* Üst Menü Pastel Butonlar */
@@ -258,6 +289,13 @@
 <body>
 
     <header>
+        <!-- Eşitleme Paneli -->
+        <div class="sync-bar">
+            <span>🔑 Cihaz Anahtarım:</span>
+            <input type="text" id="user-sync-key" class="sync-input">
+            <button class="sync-btn" onclick="syncWithCloud()">Yükle / Bağlan</button>
+        </div>
+
         <div class="main-nav">
             <button class="main-nav-btn btn-video active" onclick="switchMainTab('video')">📹 Video</button>
             <button class="main-nav-btn btn-repeat" onclick="switchMainTab('repeat')">🔁 Tekrar</button>
@@ -384,6 +422,7 @@
         let repeatData = {};
         let timerLogs = [];
         let activeCourseId = null;
+        let userSyncKey = "";
 
         // Kronometre Değişkenleri
         let timerInterval = null;
@@ -399,7 +438,73 @@
             });
         }
 
+        /* BULUT SENKRONİZASYON İŞLEMLERİ */
+        function initSyncKey() {
+            let savedKey = localStorage.getItem('tus_sync_key');
+            if (!savedKey) {
+                savedKey = "TUS-" + Math.floor(1000 + Math.random() * 9000);
+                localStorage.setItem('tus_sync_key', savedKey);
+            }
+            userSyncKey = savedKey.toUpperCase();
+            document.getElementById('user-sync-key').value = userSyncKey;
+        }
+
+        async function saveToCloud() {
+            if (!userSyncKey) return;
+            const payload = {
+                courses,
+                historyLogs,
+                repeatData,
+                timerLogs,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await fetch(`https://api.jsonbin.io/v3/b/${userSyncKey}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Bin-Private': 'false'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                // Sessizce devam et
+            }
+        }
+
+        async function syncWithCloud() {
+            const inputKey = document.getElementById('user-sync-key').value.trim().toUpperCase();
+            if (!inputKey) return;
+            
+            userSyncKey = inputKey;
+            localStorage.setItem('tus_sync_key', userSyncKey);
+
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${userSyncKey}/latest`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.record) {
+                        courses = data.record.courses || initializeDefaultCourses();
+                        historyLogs = data.record.historyLogs || [];
+                        repeatData = data.record.repeatData || {};
+                        timerLogs = data.record.timerLogs || [];
+                        saveData(false);
+                        renderDashboard();
+                        alert("Verileriniz başarıyla yüklendi!");
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // Eğer kaydolmamış anahtarsa yeni veri kaydı aç
+            saveToCloud();
+            alert(`"${userSyncKey}" için yeni anahtar oluşturuldu ve veriler eşlendi.`);
+        }
+
         function loadData() {
+            initSyncKey();
+
             const savedCourses = localStorage.getItem('tus_courses_v5');
             const savedLogs = localStorage.getItem('tus_logs_v5');
             const savedRepeats = localStorage.getItem('tus_repeats_v5');
@@ -411,13 +516,20 @@
             if (savedLogs) historyLogs = JSON.parse(savedLogs);
             if (savedRepeats) repeatData = JSON.parse(savedRepeats);
             if (savedTimerLogs) timerLogs = JSON.parse(savedTimerLogs);
+
+            // Açılışta buluttan güncel veriyi çekmeyi dene
+            syncWithCloud();
         }
 
-        function saveData() {
+        function saveData(sync = true) {
             localStorage.setItem('tus_courses_v5', JSON.stringify(courses));
             localStorage.setItem('tus_logs_v5', JSON.stringify(historyLogs));
             localStorage.setItem('tus_repeats_v5', JSON.stringify(repeatData));
             localStorage.setItem('tus_timer_logs_v5', JSON.stringify(timerLogs));
+
+            if (sync) {
+                saveToCloud();
+            }
         }
 
         /* 1. VİDEO İŞLEMLERİ */
@@ -442,7 +554,7 @@
                 const card = document.createElement('div');
                 card.className = 'course-card';
 
-                // %100 Biten Ders Soluk Yeşile Dönüşür, Diğerleri Pastel Renk
+                // %100 Biten Ders Griler, Diğerleri Pastel Renk
                 if (pct === 100) {
                     card.style.backgroundColor = "var(--c-done)";
                 } else {
@@ -452,7 +564,7 @@
                 card.onclick = () => openCourseDetail(course.id);
                 
                 card.innerHTML = `
-                    <div class="circle-outer" style="background: conic-gradient(#4a5568 ${pct}%, rgba(255,255,255,0.4) 0)">
+                    <div class="circle-outer" style="background: conic-gradient(${pct === 100 ? '#a0aec0' : '#4a5568'} ${pct}%, rgba(255,255,255,0.4) 0)">
                         <div class="circle-inner">
                             <span class="percentage-text">%${pct}</span>
                         </div>
